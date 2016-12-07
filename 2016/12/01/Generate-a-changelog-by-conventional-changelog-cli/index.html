@@ -5,16 +5,22 @@
   
   <title>使用 conventional-changelog-cli 生成 changelog | Wonder4 Life</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Quick start123$ npm install -g conventional-changelog-cli$ cd my-project$ conventional-changelog -p angular -i CHANGELOG.md -s">
+  <meta name="description" content="Git commit 格式首先，为了能够自动生成 Changelog，需要规范Git commit 的格式，这里采用 the AngularJS commit conventions 的写法。
+每次 commit 由 header，body，footer 三部分组成：
+12345&amp;lt;type&amp;gt;(&amp;lt;scope&amp;gt;): &amp;lt;subject&amp;gt;&amp;lt;BLANK LINE&amp;g">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用 conventional-changelog-cli 生成 changelog">
 <meta property="og:url" content="http://wonder4.me/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/index.html">
 <meta property="og:site_name" content="Wonder4 Life">
-<meta property="og:description" content="Quick start123$ npm install -g conventional-changelog-cli$ cd my-project$ conventional-changelog -p angular -i CHANGELOG.md -s">
-<meta property="og:updated_time" content="2016-12-01T09:02:00.000Z">
+<meta property="og:description" content="Git commit 格式首先，为了能够自动生成 Changelog，需要规范Git commit 的格式，这里采用 the AngularJS commit conventions 的写法。
+每次 commit 由 header，body，footer 三部分组成：
+12345&amp;lt;type&amp;gt;(&amp;lt;scope&amp;gt;): &amp;lt;subject&amp;gt;&amp;lt;BLANK LINE&amp;g">
+<meta property="og:updated_time" content="2016-12-07T06:49:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用 conventional-changelog-cli 生成 changelog">
-<meta name="twitter:description" content="Quick start123$ npm install -g conventional-changelog-cli$ cd my-project$ conventional-changelog -p angular -i CHANGELOG.md -s">
+<meta name="twitter:description" content="Git commit 格式首先，为了能够自动生成 Changelog，需要规范Git commit 的格式，这里采用 the AngularJS commit conventions 的写法。
+每次 commit 由 header，body，footer 三部分组成：
+12345&amp;lt;type&amp;gt;(&amp;lt;scope&amp;gt;): &amp;lt;subject&amp;gt;&amp;lt;BLANK LINE&amp;g">
   
     <link rel="alternate" href="/atom.xml" title="Wonder4 Life" type="application/atom+xml">
   
@@ -98,12 +104,41 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Quick-start"><a href="#Quick-start" class="headerlink" title="Quick start"></a>Quick start</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ npm install -g conventional-changelog-cli</div><div class="line">$ <span class="built_in">cd</span> my-project</div><div class="line">$ conventional-changelog -p angular -i CHANGELOG.md <span class="_">-s</span></div></pre></td></tr></table></figure>
+        <h2 id="Git-commit-格式"><a href="#Git-commit-格式" class="headerlink" title="Git commit 格式"></a>Git commit 格式</h2><p>首先，为了能够自动生成 Changelog，需要规范Git commit 的格式，这里采用 <a href="https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/" target="_blank" rel="external">the AngularJS commit conventions</a> 的写法。</p>
+<p>每次 commit 由 header，body，footer 三部分组成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;<span class="built_in">type</span>&gt;(&lt;scope&gt;): &lt;subject&gt;</div><div class="line">&lt;BLANK LINE&gt;</div><div class="line">&lt;body&gt;</div><div class="line">&lt;BLANK LINE&gt;</div><div class="line">&lt;footer&gt;</div></pre></td></tr></table></figure>
+<p>其中只有 header 是必须要有的，body 和 footer 可以省略。</p>
+<h4 id="Revert"><a href="#Revert" class="headerlink" title="Revert"></a>Revert</h4><p>如果要 revert 之前的一次 commit, 需要在开头加上  <code>revert:</code>, 然后是要 revert 的 commit 的 header 部分。 body 部分应该是： <code>This reverts commit &lt;hash&gt;.</code>，hash 是要被 revert 的 commit 的 SHA 值。示例见 <a href="#body">Body部分</a>。</p>
+<h4 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h4><p>必须是以下几种：</p>
+<ul>
+<li><strong>feat</strong>: 新 feature</li>
+<li><strong>fix</strong>: 修复 bug</li>
+<li><strong>docs</strong>: 修改 Documentation</li>
+<li><strong>style</strong>: 格式，无关代码含义</li>
+<li><strong>refactor</strong>: 重构，即非修复 bug，也非增加 feature</li>
+<li><strong>perf</strong>: 性能改进</li>
+<li><strong>test</strong>: 增加或修改测试用例</li>
+<li><strong>chore</strong>: 修改 build 过程或辅助脚本</li>
+</ul>
+<h4 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h4><p>可以以任意名词指明 commit 修改的范围。Scope 可以省略。</p>
+<p>如果超过一种，可以用 <code>*</code> 表示。</p>
+<h4 id="Subject"><a href="#Subject" class="headerlink" title="Subject"></a>Subject</h4><p>是对修改作出的简洁描述，不超过70字，全部小写且结尾无(.) </p>
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">feat(pencil): add <span class="string">'graphiteWidth'</span> option</div></pre></td></tr></table></figure>
+<h4 id="Body"><a href="#Body" class="headerlink" title="Body"></a>Body</h4><p>是对修改作出的详细描述。</p>
+<h4 id="Footer"><a href="#Footer" class="headerlink" title="Footer"></a>Footer</h4><p>The footer should contain any information about <strong>Breaking Changes</strong> and is also the place to <a href="https://help.github.com/articles/closing-issues-via-commit-messages/" target="_blank" rel="external">reference GitHub issues that this commit closes</a>.</p>
+<p><strong>Breaking Changes</strong> should start with the word <code>BREAKING CHANGE:</code> with a space or two newlines. The rest of the commit message is then used for this.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git config --global commit.template ~/.git_commit_msg.txt</div></pre></td></tr></table></figure>
+<h2 id="Quick-start"><a href="#Quick-start" class="headerlink" title="Quick start"></a>Quick start</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ npm install -g conventional-changelog-cli</div><div class="line">$ <span class="built_in">cd</span> my-project</div><div class="line">$ conventional-changelog -p angular -i CHANGELOG.md <span class="_">-s</span></div></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit" target="_blank" rel="external">Git Commit Guidelines</a></p>
+<p><a href="https://learn-the-web.algonquindesign.ca/topics/commit-messages/" target="_blank" rel="external">GitHub commit message conventions</a></p>
+<p><a href="https://github.com/conventional-changelog/conventional-changelog-angular/blob/master/convention.md#examples" target="_blank" rel="external">Convention examples</a></p>
+<p><a href="https://github.com/sparkbox/standard/tree/master/style/git#the-art-of-the-commit-message" target="_blank" rel="external">The Art of the Commit Message</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://wonder4.me/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/" data-id="ciw8ju4fv000075s69et85oee" class="article-share-link">Share</a>
+      <a data-url="http://wonder4.me/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/" data-id="ciwbxepjo0000xsb201n5xrq1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/build/">build</a></li></ul>
