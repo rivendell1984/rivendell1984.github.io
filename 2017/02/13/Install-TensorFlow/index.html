@@ -3,14 +3,24 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Wonder4 Life</title>
+  <title>采用 pip 方式安装 TensorFlow | Wonder4 Life</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Wonder4 Life">
-<meta property="og:url" content="http://wonder4.me/index.html">
+  <meta name="description" content="安装 TensorFlow（pip方式）安装 python3 和 pip3首先，需要安装 python 和 pip：
+123# Ubuntu/Linux 64-bit$ sudo apt-get install python-pip python-dev$ sudo apt-get install python3-pip
+这时会有 python 2.7 和 3.5 共存，默认版本为 2.7，为了默">
+<meta property="og:type" content="article">
+<meta property="og:title" content="采用 pip 方式安装 TensorFlow">
+<meta property="og:url" content="http://wonder4.me/2017/02/13/Install-TensorFlow/index.html">
 <meta property="og:site_name" content="Wonder4 Life">
+<meta property="og:description" content="安装 TensorFlow（pip方式）安装 python3 和 pip3首先，需要安装 python 和 pip：
+123# Ubuntu/Linux 64-bit$ sudo apt-get install python-pip python-dev$ sudo apt-get install python3-pip
+这时会有 python 2.7 和 3.5 共存，默认版本为 2.7，为了默">
+<meta property="og:updated_time" content="2017-02-20T03:12:24.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Wonder4 Life">
+<meta name="twitter:title" content="采用 pip 方式安装 TensorFlow">
+<meta name="twitter:description" content="安装 TensorFlow（pip方式）安装 python3 和 pip3首先，需要安装 python 和 pip：
+123# Ubuntu/Linux 64-bit$ sudo apt-get install python-pip python-dev$ sudo apt-get install python3-pip
+这时会有 python 2.7 和 3.5 共存，默认版本为 2.7，为了默">
   
     <link rel="alternate" href="/atom.xml" title="Wonder4 Life" type="application/atom+xml">
   
@@ -72,9 +82,7 @@ ga('send', 'pageview');
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-Install-TensorFlow" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-Install-TensorFlow" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/02/13/Install-TensorFlow/" class="article-date">
   <time datetime="2017-02-13T03:01:22.000Z" itemprop="datePublished">2017-02-13</time>
@@ -87,8 +95,8 @@ ga('send', 'pageview');
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/13/Install-TensorFlow/">采用 pip 方式安装 TensorFlow</a>
+    <h1 class="article-title" itemprop="name">
+      采用 pip 方式安装 TensorFlow
     </h1>
   
 
@@ -138,98 +146,39 @@ ga('send', 'pageview');
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-Generate-a-changelog-by-conventional-changelog-cli" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/" class="article-date">
-  <time datetime="2016-12-01T08:16:50.000Z" itemprop="datePublished">2016-12-01</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/">使用 conventional-changelog-cli 生成 changelog</a>
-    </h1>
+    <a href="/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">使用 conventional-changelog-cli 生成 changelog</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Git-commit-格式"><a href="#Git-commit-格式" class="headerlink" title="Git commit 格式"></a>Git commit 格式</h2><h4 id="AngularJS-commit-规范"><a href="#AngularJS-commit-规范" class="headerlink" title="AngularJS commit 规范"></a>AngularJS commit 规范</h4><p>首先，为了能够自动生成 Changelog，需要规范Git commit 的格式，这里采用 <a href="https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/" target="_blank" rel="external">the AngularJS commit conventions</a> 的写法。</p>
-<p>每次 commit 由 header，body，footer 三部分组成：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</div><div class="line">&lt;BLANK LINE&gt;</div><div class="line">&lt;body&gt;</div><div class="line">&lt;BLANK LINE&gt;</div><div class="line">&lt;footer&gt;</div></pre></td></tr></table></figure>
-<p>其中只有 header 是必须要有的，body 和 footer 可以省略。</p>
-<h4 id="Revert"><a href="#Revert" class="headerlink" title="Revert"></a>Revert</h4><p>如果要 revert 之前的一次 commit, 需要在开头加上  <code>revert:</code>, 然后是要 revert 的 commit 的 header 部分。 body 部分应该是： <code>This reverts commit &lt;hash&gt;.</code>，hash 是要被 revert 的 commit 的 SHA 值。示例见 <a href="#Body">Body 部分</a>。</p>
-<h4 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h4><p>必须是以下几种：</p>
-<ul>
-<li><strong>feat</strong>: 新 feature</li>
-<li><strong>fix</strong>: 修复 bug</li>
-<li><strong>docs</strong>: 修改 Documentation</li>
-<li><strong>style</strong>: 格式，无关代码含义</li>
-<li><strong>refactor</strong>: 重构，即非修复 bug，也非增加 feature</li>
-<li><strong>perf</strong>: 性能改进</li>
-<li><strong>test</strong>: 增加或修改测试用例</li>
-<li><strong>chore</strong>: 修改 build 过程或辅助脚本</li>
-</ul>
-<p>通常 type 是 feat，fix，或 perf的话，commit 信息会出现在 changelog 中。但是无论 type 为什么，如果 footer中有任何重大修改 （<strong>Breaking Changes</strong>），commit 信息永远会出现在 changelog 中。关于 footer 和 <strong>Breaking Changes</strong>， 见 <a href="#Footer">Footer 部分</a>。</p>
-<h4 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h4><p>可以以任意名词指明 commit 修改的范围。Scope 可以省略。</p>
-<p>如果超过一种，可以用 <code>*</code> 表示。</p>
-<h4 id="Subject"><a href="#Subject" class="headerlink" title="Subject"></a>Subject</h4><p>是对修改作出的简洁描述，不超过70字，全部小写且结尾无(.) </p>
-<p>示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">feat(pencil): add &apos;graphiteWidth&apos; option</div></pre></td></tr></table></figure>
-<h4 id="Body"><a href="#Body" class="headerlink" title="Body"></a>Body</h4><p>是对修改作出的详细描述。</p>
-<p>revert 某个 commit，并在 body 中注明，见示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">revert: feat(pencil): add &apos;graphiteWidth&apos; option</div><div class="line"></div><div class="line">This reverts commit 667ecc1654a317a13331b17617d973392f415f02.</div></pre></td></tr></table></figure>
-<h4 id="Footer"><a href="#Footer" class="headerlink" title="Footer"></a>Footer</h4><p>Footer 应该包含两种信息，或者是描述重大修改 （<strong>Breaking Changes</strong>）， 或者是指明关闭某个 issue （<strong>Referencing issues</strong>）。在 commit 中关闭 GitHub issue 见 <a href="https://help.github.com/articles/closing-issues-via-commit-messages/" target="_blank" rel="external">reference GitHub issues that this commit closes</a>。</p>
-<p><strong>Breaking Changes</strong> 需要以 <code>BREAKING CHANGE:</code> 开头，紧随其后是一个空格或空两行，然后是相关描述。示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">perf(pencil): remove graphiteWidth option</div><div class="line"></div><div class="line">BREAKING CHANGE: The graphiteWidth option has been removed. The default graphite width of 10mm is always used for performance reason.</div></pre></td></tr></table></figure>
-<p><strong>Referencing issues</strong> 关闭多个 issue 示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">fix(graphite): stop graphite breaking when width &lt; 0.1</div><div class="line"></div><div class="line">Closes #28, #29, #30</div></pre></td></tr></table></figure>
-<h4 id="Git-commit-message-模版"><a href="#Git-commit-message-模版" class="headerlink" title="Git commit message 模版"></a>Git commit message 模版</h4><p>为了方便 Git commit message 规范化，采用以下模版：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"># &lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</div><div class="line"></div><div class="line"># &lt;body&gt;</div><div class="line"></div><div class="line"># &lt;footer&gt;</div><div class="line"></div><div class="line"># -- Type --</div><div class="line"># Should be one of the following:</div><div class="line"># * feat: New feature</div><div class="line"># * fix: Bug fix</div><div class="line"># * docs: Changes to documentation</div><div class="line"># * style: Formatting, missing semi colons, etc; no code change</div><div class="line"># * refactor: Refactoring production code</div><div class="line"># * test: Adding missing tests, refactoring tests; no production code change</div><div class="line"># * chore: Updating grunt tasks etc; no production code change</div><div class="line"></div><div class="line"># -- Scope --</div><div class="line"># Scope is just the scope of the change.</div><div class="line">#</div><div class="line"></div><div class="line"># -- Subject --</div><div class="line"># Subject should use impertivite tone and say what you did.</div><div class="line">#</div><div class="line"></div><div class="line"># -- Body --</div><div class="line"># The body should go into detail about changes made.</div><div class="line">#</div><div class="line"></div><div class="line"># -- Footer --</div><div class="line"># The footer should contain any JIRA (or other tool) issue references or actions.</div><div class="line">#</div></pre></td></tr></table></figure>
-<p>另存到 <code>~/.git_commit_msg.txt</code> ，并添加到全局配置中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git config --global commit.template ~/.git_commit_msg.txt</div></pre></td></tr></table></figure>
-<p>也可以采用 <a href="https://github.com/commitizen/cz-cli" target="_blank" rel="external">Commitizen</a> 向导工具，这里不展开介绍了。</p>
-<h2 id="生成-Changelog"><a href="#生成-Changelog" class="headerlink" title="生成 Changelog"></a>生成 Changelog</h2><p>安装 conventional-changelog-cli， 并执行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ npm install -g conventional-changelog-cli</div><div class="line">$ <span class="built_in">cd</span> my-project</div><div class="line">$ conventional-changelog -p angular -i CHANGELOG.md <span class="_">-s</span></div></pre></td></tr></table></figure>
-<p>此命令采用增量的方式添加新的 commit 信息， <code>-i</code>表示输入文件 ，<code>-s</code>表示输出到相同文件。如果是首次使用这个工具，并想生成所有的 changelog，可以执行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ conventional-changelog -p angular -i CHANGELOG.md <span class="_">-s</span> -r 0</div></pre></td></tr></table></figure>
-<p>该命令会覆盖以前的 changelog， <code>-r</code>表示从最新的 release 向前追溯有多少个 release 被生成，0表示重新生成所有 changelog。</p>
-<p>更多参数，参考<code>conventional-changelog --help</code>。</p>
-<p>这是一个生成的示例：</p>
-<figure class="highlight markdown"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&lt;a name=""&gt;&lt;/a&gt;</div><div class="line"><span class="section">#  (2016-12-07)</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="section">### Bug Fixes</span></div><div class="line"></div><div class="line"><span class="bullet">* </span><span class="strong">**firebase:**</span> using single instance to get firebasedatabase ([<span class="string">647f483</span>](<span class="link">https://xxx/commits/647f483</span>))</div><div class="line"></div><div class="line"></div><div class="line"><span class="section">### Features</span></div><div class="line"></div><div class="line"><span class="bullet">* </span><span class="strong">**firebase:**</span> add firebase library ([<span class="string">585c89c</span>](<span class="link">https://xxx/commits/585c89c</span>))</div></pre></td></tr></table></figure>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit" target="_blank" rel="external">Git Commit Guidelines</a></p>
-<p><a href="https://learn-the-web.algonquindesign.ca/topics/commit-messages/" target="_blank" rel="external">GitHub commit message conventions</a></p>
-<p><a href="https://github.com/conventional-changelog/conventional-changelog-angular/blob/master/convention.md#examples" target="_blank" rel="external">Convention examples</a></p>
-<p><a href="https://github.com/sparkbox/standard/tree/master/style/git#the-art-of-the-commit-message" target="_blank" rel="external">The Art of the Commit Message</a></p>
-<p><a href="https://github.com/conventional-changelog/conventional-changelog-cli" target="_blank" rel="external">conventional-changelog-cli</a></p>
-<p><a href="http://www.ruanyifeng.com/blog/2016/01/commit_message_change_log.html" target="_blank" rel="external">Commit message 和 Change log 编写指南</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://wonder4.me/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/" data-id="ciz9jpqlj0000wks6udnw9pl5" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Document/">Document</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
 
 
-  
-
+<section id="comments">
+  <!-- 多说评论框 start -->
+  <div class="ds-thread" data-thread-key="post-Install-TensorFlow" data-title="采用 pip 方式安装 TensorFlow" data-url="http://wonder4.me/2017/02/13/Install-TensorFlow/"></div>
+  <!-- 多说评论框 end -->
+  <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+  <script type="text/javascript">
+  var duoshuoQuery = {short_name:'wonder4'};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+       || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+<!-- 多说公共JS代码 end -->
+</section>
 </section>
         
           <aside id="sidebar">
