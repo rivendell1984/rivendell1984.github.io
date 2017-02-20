@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://wonder4.me/2017/02/20/Using-Local-Image-in-Hexo/</loc>
+    
+    <lastmod>2017-02-20T10:31:10.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://wonder4.me/2017/02/13/Install-TensorFlow/</loc>
     
     <lastmod>2017-02-20T08:32:02.000Z</lastmod>
