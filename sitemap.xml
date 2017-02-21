@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://wonder4.me/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/</loc>
+    
+    <lastmod>2017-02-21T02:09:49.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://wonder4.me/2017/02/20/Using-Local-Image-in-Hexo/</loc>
     
     <lastmod>2017-02-20T10:33:16.000Z</lastmod>
@@ -12,13 +19,6 @@
     <loc>http://wonder4.me/2017/02/13/Install-TensorFlow/</loc>
     
     <lastmod>2017-02-20T08:32:02.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://wonder4.me/2016/12/01/Generate-a-changelog-by-conventional-changelog-cli/</loc>
-    
-    <lastmod>2017-02-20T08:31:14.000Z</lastmod>
     
   </url>
   
