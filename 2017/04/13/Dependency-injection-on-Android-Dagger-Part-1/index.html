@@ -1,0 +1,853 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Dagger," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="On this new series I will explain what dependency injection is, what its main purpose is and how to use it on an Android project by using Dagger, the best know implementation designed with Android in">
+<meta property="og:type" content="article">
+<meta property="og:title" content="译 Dependency injection on Android: Dagger(Part 1)">
+<meta property="og:url" content="http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/index.html">
+<meta property="og:site_name" content="Wonder4 Life">
+<meta property="og:description" content="On this new series I will explain what dependency injection is, what its main purpose is and how to use it on an Android project by using Dagger, the best know implementation designed with Android in">
+<meta property="og:updated_time" content="2017-04-13T07:24:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="译 Dependency injection on Android: Dagger(Part 1)">
+<meta name="twitter:description" content="On this new series I will explain what dependency injection is, what its main purpose is and how to use it on an Android project by using Dagger, the best know implementation designed with Android in">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/"/>
+
+
+
+
+
+  <title> 译 Dependency injection on Android: Dagger(Part 1) | Wonder4 Life </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-35276626-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Wonder4 Life</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Rivendell">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars2.githubusercontent.com/u/4797569?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Wonder4 Life">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Wonder4 Life" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                译 Dependency injection on Android: Dagger(Part 1)
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-13T10:27:16+08:00">
+                2017-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/" class="leancloud_visitors" data-flag-title="译 Dependency injection on Android: Dagger(Part 1)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>On this new series I will explain what dependency injection is, what its main purpose is and how to use it on an Android project by using <a href="http://square.github.io/dagger/" target="_blank" rel="external">Dagger</a>, the best know implementation designed with Android in mind.</p>
+<p>It will be a follow-up from my previous post about <a href="http://antonioleiva.com/mvp-android/" target="_blank" rel="external">MVP for Android</a>, because I know some of you are quite interested in see them implemented in the same project, and I think they work quite well together.</p>
+<p>This first part is going to be only a little theory to <strong>settle the basis</strong>. It’s important to understand what it is and why it exists, because if not we will think the benefits are not enough for the effort.</p>
+<p>在这个新的系列文章中我将解释什么是依赖注入，它的主要目的是什么以及如何在 Android 项目中使用 <a href="http://square.github.io/dagger/" target="_blank" rel="external">Dagger</a>，一个最著名的 Android 版本的实现。 </p>
+<p>本文是 <a href="http://antonioleiva.com/mvp-android/" target="_blank" rel="external">MVP for Android</a> 的后续文章，因为我知道你们中有一部分人对在项目中整合它们很感兴趣，而且我认为它们可以很好的协作。</p>
+<p>第一部分将仅介绍一些理论来<strong>奠定基础</strong>。理解它是什么以及为什么存在是很重要的，因为如果我们不认为它有足够的好处，也不会有足够的动力去使用它。</p>
+<a id="more"></a>
+<h2 id="什么是依赖？-What-is-a-dependency"><a href="#什么是依赖？-What-is-a-dependency" class="headerlink" title="什么是依赖？(What is a dependency?)"></a>什么是依赖？(What is a dependency?)</h2><p>If we want to inject dependencies, we first need to know what a dependency is. In short, <strong>a dependency is a coupling between two modules of our code</strong> (in oriented object languages, two classes), usually because one of them uses the other to do something.</p>
+<p>如果我们想要注入依赖，我们首先需要知道什么是依赖。<strong>依赖是代码中两个模块间的耦合</strong>（在面向对象语言中，就是两个类），通常源于一个模块使用另外一个模块做些事。</p>
+<h2 id="为何依赖是危险的？-Why-dependencies-are-dangerous"><a href="#为何依赖是危险的？-Why-dependencies-are-dangerous" class="headerlink" title="为何依赖是危险的？(Why dependencies are dangerous?)"></a>为何依赖是危险的？(Why dependencies are dangerous?)</h2><p>Dependencies from high to low level are dangerous because we couple both modules in a way that if we need to change one module with another,<strong>we necessarily need to modify the code of the coupled module</strong>. That’s really bad if we want to create a testable app, because unit testing requires that when we are testing a module, it is isolated from the rest of modules in our app. To do this, we need to substitute dependencies with mocks. Imagine a code like this:</p>
+<p>从上层到底层的依赖是危险的，因为我们耦合了两个模块，如果我们需要修改其中一个模块时，<strong>我们需要修改耦合的模块的代码</strong>。如果我们想创建<strong>可测试</strong>的应用这将非常糟糕，因为在我们测试一个模块时，单元测试需要隔离其他的模块。我们需要使用 mocks 替换依赖的模块，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Module1</span></span>&#123;</div><div class="line">   <span class="keyword">private</span> Module2 module2;</div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="title">Module1</span><span class="params">()</span></span>&#123;</div><div class="line">      module2 = <span class="keyword">new</span> Module2();</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span></span>&#123;</div><div class="line">      ...</div><div class="line">      module2.doSomethingElse();</div><div class="line">      ...</div><div class="line">   &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>How do we test <em>‘doSomething’</em> without testing <em>‘doSomethingElse’</em>? If test fails, what method is the one that is failing? We can’t know. And things get worse if this <em>‘doSomethingElse’</em> method saves something in database or performs an API call.</p>
+<p>Every <strong>‘new’</strong> we write is a hard dependency we probably need to avoid. And no, writing less modules isn’t a solution, don’t forget <a href="http://devexperto.com/principio-responsabilidad-unica/" target="_blank" rel="external">single responsibility principle</a>.</p>
+<p>我们如何在不测试 doSomethingElse 的情况下测试 doSomething 呢？如果测试失败，哪个函数导致的失败呢？我们不得而知。更糟的是 doSomethingElse 函数保存数据到数据库或者发起 API 请求。</p>
+<p>每个我们写下的  <strong>‘new’</strong> 都是一个强依赖，我们需要尽量避免。并且通过减少模块数量并不是最终解决方案，不要忘记<a href="http://en.wikipedia.org/wiki/Single_responsibility_principle" target="_blank" rel="external">单一职责原则</a>。</p>
+<h2 id="如何解决它？依赖反转-How-to-solve-it-Dependency-inversion"><a href="#如何解决它？依赖反转-How-to-solve-it-Dependency-inversion" class="headerlink" title="如何解决它？依赖反转 (How to solve it? Dependency inversion)"></a>如何解决它？依赖反转 (How to solve it? Dependency inversion)</h2><p>If we can’t instantiate modules inside another module, we need to provide those modules in another way. Can you imagine how? Exactly, via constructor. That is basically what <a href="http://en.wikipedia.org/wiki/Dependency_inversion_principle" target="_blank" rel="external">dependency inversion principle</a> means. You shouldn’t rely on concrete module objects, only on abstractions.</p>
+<p>Our previous example code would be something like this:</p>
+<p>如果我们不应该在另外的模块内部初始化模块，那么需要以其他形式<strong>提供</strong>这些模块。你能想象如何实现吗？没错，通过构造函数。这就是<a href="http://en.wikipedia.org/wiki/Dependency_inversion_principle" target="_blank" rel="external">依赖反转原则</a>。你不应该依赖具体的模块对象，应该仅依赖抽象。</p>
+<p>前面的示例代码应该修改为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Module1</span></span>&#123;</div><div class="line">   <span class="keyword">private</span> Module2 module2;</div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="title">Module1</span><span class="params">(Module2 module2)</span></span>&#123;</div><div class="line">      <span class="keyword">this</span>.module2 = module2</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span></span>&#123;</div><div class="line">      ...</div><div class="line">      module2.doSomethingElse();</div><div class="line">      ...</div><div class="line">   &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="什么是依赖注入？-So-what’s-dependency-injection"><a href="#什么是依赖注入？-So-what’s-dependency-injection" class="headerlink" title="什么是依赖注入？(So what’s dependency injection?)"></a>什么是依赖注入？(So what’s dependency injection?)</h2><p>You already know! It consists of <strong>passing dependencies (inject them) via constructor</strong> in order to extract the task of creating modules out from other modules. Objects are instantiated somewhere else and passed as constructor attributes when creating the current object.</p>
+<p>But here it comes a new problem. If we can’t create modules inside modules, there must be a place where those modules are instantiated. Besides, if we need to create modules with huge constructors including lots of dependencies, code will become dirty and hard to read, with objects travelling around the inmensity of our app. That’s what a dependency injector solves.</p>
+<p>你已经知道了！<strong>通过构造函数传递依赖（注入它们）</strong>，从而把在一个模块中创建另一个模块的任务提取出来。需要的对象在其他地方初始化，在当前对象创建时，以构造函数参数的形式传递进来。</p>
+<p>但带来了新的问题。如果我们不能在模块内部创建其他的模块，那么必须有个地方对这些模块进行初始化。除此之外，如果我们创建的模块带有庞大的构造函数包含了大量的依赖模块，代码将不够美观和难以阅读，对象传递将遍布整个应用。这正是依赖注入要解决的问题。</p>
+<h2 id="什么是依赖注入器？-What-is-a-dependency-injector"><a href="#什么是依赖注入器？-What-is-a-dependency-injector" class="headerlink" title="什么是依赖注入器？(What is a dependency injector?)"></a>什么是依赖注入器？(What is a dependency injector?)</h2><p>We can consider it as another module in our app that <strong>is in charge of providing instances of the rest of modules</strong> and inject their dependencies. That is basically its duty. The creation of modules is localized in a single point in our app, and we have full control over it.</p>
+<p>我们可以认为它是应用中的另一个模块，<strong>负责提供其他模块的实例</strong>并注入他们的依赖。基本上这是它的职责。模块的创建位于应用的单独位置，我们对其拥有完全的控制。</p>
+<h2 id="最后…什么是-Dagger？-And-finally…-What-is-Dagger"><a href="#最后…什么是-Dagger？-And-finally…-What-is-Dagger" class="headerlink" title="最后…什么是 Dagger？(And finally… What is Dagger?)"></a>最后…什么是 Dagger？(And finally… What is Dagger?)</h2><p><a href="http://square.github.io/dagger/" target="_blank" rel="external">Dagger</a> is a dependency injector <strong>designed for low-end devices</strong>. Most dependency injectors rely on reflection to create and inject dependencies. Reflection is awesome, but is very time consuming on low-end devices, and specially on old android versions. Dagger, however, uses a pre-compiler that creates all the classes it needs to work. That way, <strong>no reflection is needed</strong>. Dagger is less powerful than other dependency injectors, <strong>but it’s the most efficient</strong>.</p>
+<p><a href="http://square.github.io/dagger/" target="_blank" rel="external">Dagger</a> 是<strong>为低端设备设计</strong>的依赖注入器。大部分依赖注入器依靠反射机制来创建和注入依赖。反射机制是极好的，但在低端设备上非常消耗时间，尤其是过去的 android 版本。Dagger 使用预编译器创建需要的所有类。<strong>无需采用反射</strong>。Dagger 相比其他依赖注入器不那么强大，<strong>但是它是最有效率的</strong>。</p>
+<h2 id="Dagger-仅用于测试吗？-Is-Dagger-only-for-testing"><a href="#Dagger-仅用于测试吗？-Is-Dagger-only-for-testing" class="headerlink" title="Dagger 仅用于测试吗？(Is Dagger only for testing?)"></a>Dagger 仅用于测试吗？(Is Dagger only for testing?)</h2><p>Of course not! It makes easier to <strong>reuse your modules</strong> in other apps, or even change them in the same app. Think for example in an app which takes its data from some local files on debug and from an API service on release. That’s perfectly possible by injecting one module or another on each case.</p>
+<p>当然不！它使得在其他应用中<strong>重用你的模块</strong>更容易，甚至在同一应用中改变这些模块。例如一个应用在 debug 模式下从本地文件中读取数据，而在 release 模式下从服务器 API 请求数据。针对不同的模式，可以注入不同的模块来实现。</p>
+<h2 id="结论-Conclusion"><a href="#结论-Conclusion" class="headerlink" title="结论 (Conclusion)"></a>结论 (Conclusion)</h2><p>I know this post it’s a bit hard, but I think it’s very important to establish the terms we are going to deal with on next episodes. We already know what dependencies are, what we improve with dependency inversion and how we can implement it by using a dependency injector.</p>
+<p><a href="http://antonioleiva.com/dagger-android-part-2/" target="_blank" rel="external">On next episode</a> we will get our hands dirty. so stay tuned!</p>
+<p>我知道这篇文章有点难，但我认为建立理论基础用于理解下一篇文章非常重要。我们已经知道什么是依赖，通过依赖反转改进了什么以及我们如何通过依赖注入器实现它。</p>
+<p>在<a href="http://antonioleiva.com/dagger-android-part-2/" target="_blank" rel="external">下一篇文章</a>中我们将开始动手去做。敬请期待！</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="http://antonioleiva.com/dependency-injection-android-dagger-part-1/" target="_blank" rel="external">Dependency injection on Android: Dagger (Part 1)</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Dagger/" rel="tag"># Dagger</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/20/Using-Local-Image-in-Hexo/" rel="next" title="在 Hexo 中使用本地图片">
+                <i class="fa fa-chevron-left"></i> 在 Hexo 中使用本地图片
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars2.githubusercontent.com/u/4797569?v=3&s=460"
+               alt="Rivendell" />
+          <p class="site-author-name" itemprop="name">Rivendell</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是依赖？-What-is-a-dependency"><span class="nav-number">1.</span> <span class="nav-text">什么是依赖？(What is a dependency?)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为何依赖是危险的？-Why-dependencies-are-dangerous"><span class="nav-number">2.</span> <span class="nav-text">为何依赖是危险的？(Why dependencies are dangerous?)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何解决它？依赖反转-How-to-solve-it-Dependency-inversion"><span class="nav-number">3.</span> <span class="nav-text">如何解决它？依赖反转 (How to solve it? Dependency inversion)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是依赖注入？-So-what’s-dependency-injection"><span class="nav-number">4.</span> <span class="nav-text">什么是依赖注入？(So what’s dependency injection?)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是依赖注入器？-What-is-a-dependency-injector"><span class="nav-number">5.</span> <span class="nav-text">什么是依赖注入器？(What is a dependency injector?)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后…什么是-Dagger？-And-finally…-What-is-Dagger"><span class="nav-number">6.</span> <span class="nav-text">最后…什么是 Dagger？(And finally… What is Dagger?)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dagger-仅用于测试吗？-Is-Dagger-only-for-testing"><span class="nav-number">7.</span> <span class="nav-text">Dagger 仅用于测试吗？(Is Dagger only for testing?)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论-Conclusion"><span class="nav-number">8.</span> <span class="nav-text">结论 (Conclusion)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">9.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rivendell</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wonder4-life';
+      var disqus_identifier = '2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/';
+
+      var disqus_title = "译 Dependency injection on Android: Dagger(Part 1)";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fcMqOo1mlvdLMWP6KnOGjwCd-gzGzoHsz", "0CVDjap0JXkvbNKlDg90jejv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="//s.skimresources.com/js/30979X1032744.skimlinks.js"></script>
+
+</body>
+</html>
