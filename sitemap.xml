@@ -2,9 +2,51 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://wonder4.me/2017/04/13/Dagger-dependency-injection-on-Android-Part-2/</loc>
+    
+    <lastmod>2017-08-11T03:25:31.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wonder4.me/2017/07/21/How-Dagger-works/</loc>
+    
+    <lastmod>2017-07-28T03:30:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wonder4.me/2017/04/18/All-com-android-support-libraries-must-use-the-exact-same-version-specification/</loc>
+    
+    <lastmod>2017-07-27T08:36:31.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wonder4.me/2017/07/20/Dagger-in-use/</loc>
+    
+    <lastmod>2017-07-25T05:10:24.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/</loc>
     
-    <lastmod>2017-04-13T07:24:18.000Z</lastmod>
+    <lastmod>2017-06-14T08:01:14.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wonder4.me/2017/05/31/Create-Project-Page-in-Github/</loc>
+    
+    <lastmod>2017-06-01T09:59:02.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://wonder4.me/2017/05/22/Using-jadx-to-decompile-android-app/</loc>
+    
+    <lastmod>2017-05-22T09:09:46.000Z</lastmod>
     
   </url>
   

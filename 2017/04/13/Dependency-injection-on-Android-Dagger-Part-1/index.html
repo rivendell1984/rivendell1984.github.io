@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/index.html">
 <meta property="og:site_name" content="Wonder4 Life">
 <meta property="og:description" content="On this new series I will explain what dependency injection is, what its main purpose is and how to use it on an Android project by using Dagger, the best know implementation designed with Android in">
-<meta property="og:updated_time" content="2017-04-13T07:24:18.000Z">
+<meta property="og:updated_time" content="2017-06-14T08:01:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="译 Dependency injection on Android: Dagger(Part 1)">
 <meta name="twitter:description" content="On this new series I will explain what dependency injection is, what its main purpose is and how to use it on an Android project by using Dagger, the best know implementation designed with Android in">
@@ -359,7 +359,7 @@
 <p>This first part is going to be only a little theory to <strong>settle the basis</strong>. It’s important to understand what it is and why it exists, because if not we will think the benefits are not enough for the effort.</p>
 <p>在这个新的系列文章中我将解释什么是依赖注入，它的主要目的是什么以及如何在 Android 项目中使用 <a href="http://square.github.io/dagger/" target="_blank" rel="external">Dagger</a>，一个最著名的 Android 版本的实现。 </p>
 <p>本文是 <a href="http://antonioleiva.com/mvp-android/" target="_blank" rel="external">MVP for Android</a> 的后续文章，因为我知道你们中有一部分人对在项目中整合它们很感兴趣，而且我认为它们可以很好的协作。</p>
-<p>第一部分将仅介绍一些理论来<strong>奠定基础</strong>。理解它是什么以及为什么存在是很重要的，因为如果我们不认为它有足够的好处，也不会有足够的动力去使用它。</p>
+<p>第一部分将仅介绍一些理论来<strong>奠定基础</strong>。理解它是什么以及为什么存在是很重要的，因为如果我们不认为它有足够多的益处，也不会有足够的动力去使用它。</p>
 <a id="more"></a>
 <h2 id="什么是依赖？-What-is-a-dependency"><a href="#什么是依赖？-What-is-a-dependency" class="headerlink" title="什么是依赖？(What is a dependency?)"></a>什么是依赖？(What is a dependency?)</h2><p>If we want to inject dependencies, we first need to know what a dependency is. In short, <strong>a dependency is a coupling between two modules of our code</strong> (in oriented object languages, two classes), usually because one of them uses the other to do something.</p>
 <p>如果我们想要注入依赖，我们首先需要知道什么是依赖。<strong>依赖是代码中两个模块间的耦合</strong>（在面向对象语言中，就是两个类），通常源于一个模块使用另外一个模块做些事。</p>
@@ -368,7 +368,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Module1</span></span>&#123;</div><div class="line">   <span class="keyword">private</span> Module2 module2;</div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="title">Module1</span><span class="params">()</span></span>&#123;</div><div class="line">      module2 = <span class="keyword">new</span> Module2();</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span></span>&#123;</div><div class="line">      ...</div><div class="line">      module2.doSomethingElse();</div><div class="line">      ...</div><div class="line">   &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>How do we test <em>‘doSomething’</em> without testing <em>‘doSomethingElse’</em>? If test fails, what method is the one that is failing? We can’t know. And things get worse if this <em>‘doSomethingElse’</em> method saves something in database or performs an API call.</p>
 <p>Every <strong>‘new’</strong> we write is a hard dependency we probably need to avoid. And no, writing less modules isn’t a solution, don’t forget <a href="http://devexperto.com/principio-responsabilidad-unica/" target="_blank" rel="external">single responsibility principle</a>.</p>
-<p>我们如何在不测试 doSomethingElse 的情况下测试 doSomething 呢？如果测试失败，哪个函数导致的失败呢？我们不得而知。更糟的是 doSomethingElse 函数保存数据到数据库或者发起 API 请求。</p>
+<p>我们如何在不测试 doSomethingElse 的情况下测试 doSomething 呢？如果测试失败，哪个函数导致的失败呢？我们不得而知。如果 doSomethingElse 函数保存数据到数据库或者发起 API 请求，事情将变得更糟。</p>
 <p>每个我们写下的  <strong>‘new’</strong> 都是一个强依赖，我们需要尽量避免。并且通过减少模块数量并不是最终解决方案，不要忘记<a href="http://en.wikipedia.org/wiki/Single_responsibility_principle" target="_blank" rel="external">单一职责原则</a>。</p>
 <h2 id="如何解决它？依赖反转-How-to-solve-it-Dependency-inversion"><a href="#如何解决它？依赖反转-How-to-solve-it-Dependency-inversion" class="headerlink" title="如何解决它？依赖反转 (How to solve it? Dependency inversion)"></a>如何解决它？依赖反转 (How to solve it? Dependency inversion)</h2><p>If we can’t instantiate modules inside another module, we need to provide those modules in another way. Can you imagine how? Exactly, via constructor. That is basically what <a href="http://en.wikipedia.org/wiki/Dependency_inversion_principle" target="_blank" rel="external">dependency inversion principle</a> means. You shouldn’t rely on concrete module objects, only on abstractions.</p>
 <p>Our previous example code would be something like this:</p>
@@ -437,6 +437,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/13/Dagger-dependency-injection-on-Android-Part-2/" rel="prev" title="译 Dagger: dependency injection on Android (Part 2)">
+                译 Dagger: dependency injection on Android (Part 2) <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -515,7 +519,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -526,7 +530,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

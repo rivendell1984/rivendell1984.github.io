@@ -1,0 +1,909 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Dagger," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="这篇文章采用循序渐进的方式，分析下 Dagger 注入对象的原理，看看 Dagger 是如何完成编译时依赖注入。这里仍然采用上篇文章的例子，在 MainActivity 中 注入 Stool 对象。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dagger 注入对象的原理">
+<meta property="og:url" content="http://wonder4.me/2017/07/21/How-Dagger-works/index.html">
+<meta property="og:site_name" content="Wonder4 Life">
+<meta property="og:description" content="这篇文章采用循序渐进的方式，分析下 Dagger 注入对象的原理，看看 Dagger 是如何完成编译时依赖注入。这里仍然采用上篇文章的例子，在 MainActivity 中 注入 Stool 对象。">
+<meta property="og:image" content="http://wonder4.me/2017/07/21/How-Dagger-works/Stool_Factory.png">
+<meta property="og:image" content="http://wonder4.me/2017/07/21/How-Dagger-works/MembersInjector.png">
+<meta property="og:image" content="http://wonder4.me/2017/07/21/How-Dagger-works/InjectRelationship.png">
+<meta property="og:updated_time" content="2017-07-28T03:30:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dagger 注入对象的原理">
+<meta name="twitter:description" content="这篇文章采用循序渐进的方式，分析下 Dagger 注入对象的原理，看看 Dagger 是如何完成编译时依赖注入。这里仍然采用上篇文章的例子，在 MainActivity 中 注入 Stool 对象。">
+<meta name="twitter:image" content="http://wonder4.me/2017/07/21/How-Dagger-works/Stool_Factory.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://wonder4.me/2017/07/21/How-Dagger-works/"/>
+
+
+
+
+
+  <title> Dagger 注入对象的原理 | Wonder4 Life </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-35276626-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Wonder4 Life</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://wonder4.me/2017/07/21/How-Dagger-works/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Rivendell">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars2.githubusercontent.com/u/4797569?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Wonder4 Life">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Wonder4 Life" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                Dagger 注入对象的原理
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-21T13:32:37+08:00">
+                2017-07-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/07/21/How-Dagger-works/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/21/How-Dagger-works/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2017/07/21/How-Dagger-works/" class="leancloud_visitors" data-flag-title="Dagger 注入对象的原理">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这篇文章采用循序渐进的方式，分析下 Dagger 注入对象的原理，看看 Dagger 是如何完成编译时依赖注入。这里仍然采用上篇文章的例子，在 MainActivity 中 注入 Stool 对象。</p>
+<a id="more"></a>
+<h2 id="Provider-提供被依赖对象-Inject-方式"><a href="#Provider-提供被依赖对象-Inject-方式" class="headerlink" title="Provider 提供被依赖对象(@Inject 方式)"></a>Provider 提供被依赖对象(@Inject 方式)</h2><p>为了避免落入一上来就名词解释的深渊，直接上代码。</p>
+<p>首先，创建被依赖的类 Stool ：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Stool</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Inject</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Stool</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 build 项目之后，会在 app/build/generated/source/apt/debug/{package_name} 下生成对应的工厂类 Stool_Factory ：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Stool_Factory</span> <span class="keyword">implements</span> <span class="title">Factory</span>&lt;<span class="title">Stool</span>&gt; </span>&#123;</div><div class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Stool_Factory INSTANCE = <span class="keyword">new</span> Stool_Factory();</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> Stool <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Stool();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Factory&lt;Stool&gt; <span class="title">create</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> INSTANCE;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个工厂类的类图如下 ：</p>
+<p><img src="/2017/07/21/How-Dagger-works/Stool_Factory.png" alt="Stool_Factory"></p>
+<p>可以看到，这个工厂类实现了 Dagger 框架中的 Factory 接口，而 Dagger 的 Factory 接口继承了 <a href="http://docs.oracle.com/javaee/7/api/javax/inject/package-summary.html" target="_blank" rel="external">javax.inject</a> 包中的 Provider 接口。Stool_Factory 实现了接口的 get 方法，创建 Stool 对象。</p>
+<p>所以在这里，Stool_Factory 这个自动生成的类，就是 Dagger 库对 Provider 接口的实现，提供被依赖的对象。</p>
+<p>同时这个类提供 create 静态方法创建并返回自身对象。</p>
+<p>这里简要介绍下 <a href="http://docs.oracle.com/javaee/7/api/javax/inject/package-summary.html" target="_blank" rel="external">javax.inject</a> 包：</p>
+<blockquote>
+<p>Java 依赖注入有一套标准 <a href="https://jcp.org/en/jsr/detail?id=330" target="_blank" rel="external">JSR-330</a>，<a href="http://docs.oracle.com/javaee/7/api/javax/inject/package-summary.html" target="_blank" rel="external">javax.inject</a>  是一套遵循该标准的注解框架。 定义了依赖注入的核心部分 @Inject 注解和 Provider 接口，而没有具体的注入器 (injector) 的实现。具体的依赖配置 (dependency configuration) 取决于注入器 (injector) 的实现。实现的方式有多种：有的是通过反射，有的是编译时生成代码。Dagger 也遵从这套标准，采用编译时生成代码的方式实现这部分接口。</p>
+<p>javax.inject 包中，后续还会遇到Qualifier，Scope，Singleton注解。</p>
+</blockquote>
+<h2 id="Injector-提供被依赖对象的注入方式"><a href="#Injector-提供被依赖对象的注入方式" class="headerlink" title="Injector 提供被依赖对象的注入方式"></a>Injector 提供被依赖对象的注入方式</h2><p>接下来，在 MainActivity 中注入 Stool 成员变量：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> javax.inject.Inject;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Inject</span></div><div class="line">    Stool mStool;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 build 项目之后会在 app/build/generated/source/apt/debug/{package_name} 下生成 MainActivity 成员变量的注入器类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> dagger.MembersInjector;</div><div class="line"><span class="keyword">import</span> javax.inject.Provider;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity_MembersInjector</span> <span class="keyword">implements</span> <span class="title">MembersInjector</span>&lt;<span class="title">MainActivity</span>&gt; </span>&#123;</div><div class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Provider&lt;Stool&gt; mStoolProvider;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">MainActivity_MembersInjector</span><span class="params">(Provider&lt;Stool&gt; mStoolProvider)</span> </span>&#123;</div><div class="line">    <span class="keyword">assert</span> mStoolProvider != <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">this</span>.mStoolProvider = mStoolProvider;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MembersInjector&lt;MainActivity&gt; <span class="title">create</span><span class="params">(Provider&lt;Stool&gt; mStoolProvider)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MainActivity_MembersInjector(mStoolProvider);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">injectMembers</span><span class="params">(MainActivity instance)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"Cannot inject members into a null reference"</span>);</div><div class="line">    &#125;</div><div class="line">    instance.mStool = mStoolProvider.get();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">injectMStool</span><span class="params">(MainActivity instance, Provider&lt;Stool&gt; mStoolProvider)</span> </span>&#123;</div><div class="line">    instance.mStool = mStoolProvider.get();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>下面是注入器的类图：</p>
+<p><img src="/2017/07/21/How-Dagger-works/MembersInjector.png" alt="Stool_Factory"></p>
+<p>这个注入器类实现了 Dagger 框架中 MembersInjector 接口，并通过 mStoolProvider 持有之前的工厂对象。</p>
+<p>在 injectMembers 接口方法中，传入 MainActivity 对象，通过 mStoolProvider 创建 Stool 对象，并赋值给 MainActivity 的 mStool 字段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">injectMembers</span><span class="params">(MainActivity instance)</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"Cannot inject members into a null reference"</span>);</div><div class="line">  &#125;</div><div class="line">  instance.mStool = mStoolProvider.get();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注：由上面这段代码可以发现，因为要直接通过 instance.mStool 完成赋值，所以在平时使用时需要注意，用 Dagger 注入字段时<strong>不能</strong>像下面这样将字段设为 private</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Inject</span></div><div class="line"><span class="keyword">private</span> Stool mStool;<span class="comment">//Wrong</span></div></pre></td></tr></table></figure>
+<p>这样做会遇到 <code>Error: Dagger does not support injection into private fields</code> 。</p>
+<p>这个类还提供了 create 静态方法创建并返回自身 MembersInjector 对象，同时传入需要的 Provider 对象，即之前的 Stool 工厂对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MembersInjector&lt;MainActivity&gt; <span class="title">create</span><span class="params">(Provider&lt;Stool&gt; mStoolProvider)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> MainActivity_MembersInjector(mStoolProvider);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>所以，这个方法是将 Injector 和 Provider 联系起来的关键。</p>
+<p>接下来就是一个重要的接口，负责创建 Provider 和 Injector 对象并绑定二者，调用 Injector 的注入方法完成注入。</p>
+<h2 id="Component-完成绑定和注入"><a href="#Component-完成绑定和注入" class="headerlink" title="Component 完成绑定和注入"></a>Component 完成绑定和注入</h2><p>在引入完整版 Component 之前，先定义一个空的 Component 接口，看看发生了什么：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span>()</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MainActivityComponent</span> </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 build 项目之后会在 app/build/generated/source/apt/debug/{package_name} 下生成接口的实现类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DaggerMainActivityComponent</span> <span class="keyword">implements</span> <span class="title">MainActivityComponent</span> </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="title">DaggerMainActivityComponent</span><span class="params">(Builder builder)</span> </span>&#123;</div><div class="line">    <span class="keyword">assert</span> builder != <span class="keyword">null</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Builder <span class="title">builder</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MainActivityComponent <span class="title">create</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder().build();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Builder</span><span class="params">()</span> </span>&#123;&#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> MainActivityComponent <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> DaggerMainActivityComponent(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到 Component 的实现类采用了 Builder 模式，用来创建自身对象。同时提供了 <code>DaggerMainActivityComponent.create()</code> 方法代替  <code>DaggerMainActivityComponent.builder.build()</code>。</p>
+<p>接下来，加入 inject 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span>()</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MainActivityComponent</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">inject</span><span class="params">(MainActivity activity)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 build 项目之后会在 app/build/generated/source/apt/debug/{package_name} 下生成接口的实现类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DaggerMainActivityComponent</span> <span class="keyword">implements</span> <span class="title">MainActivityComponent</span> </span>&#123;</div><div class="line">  <span class="keyword">private</span> MembersInjector&lt;MainActivity&gt; mainActivityMembersInjector;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="title">DaggerMainActivityComponent</span><span class="params">(Builder builder)</span> </span>&#123;</div><div class="line">    <span class="keyword">assert</span> builder != <span class="keyword">null</span>;</div><div class="line">    initialize(builder);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Builder <span class="title">builder</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MainActivityComponent <span class="title">create</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder().build();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initialize</span><span class="params">(<span class="keyword">final</span> Builder builder)</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.mainActivityMembersInjector = MainActivity_MembersInjector.create(Stool_Factory.create());</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inject</span><span class="params">(MainActivity activity)</span> </span>&#123;</div><div class="line">    mainActivityMembersInjector.injectMembers(activity);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Builder</span><span class="params">()</span> </span>&#123;&#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> MainActivityComponent <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> DaggerMainActivityComponent(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在添加了这个接口之后，生成的 DaggerMainActivityComponent 类添加了两个新方法: </p>
+<ol>
+<li>initialize 创建了 Injector 对象和 Stool_Factory 对象，并将它们关联起来；</li>
+</ol>
+<ol>
+<li>提供 inject 方法，用于被依赖对象最终注入。</li>
+</ol>
+<p>几个类的关系图如下：</p>
+<p><img src="/2017/07/21/How-Dagger-works/InjectRelationship.png" alt="Stool_Factory"></p>
+<p>由此可见，通过自动生成的这三个类协作，完成了对象的注入。</p>
+<h2 id="Provider-提供被依赖对象（-Module-方式-static-方法）"><a href="#Provider-提供被依赖对象（-Module-方式-static-方法）" class="headerlink" title="Provider 提供被依赖对象（@Module 方式 + static 方法）"></a>Provider 提供被依赖对象（@Module 方式 + static 方法）</h2><p>这次，被依赖的类 Stool 构造函数没有 @Inject 注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Stool</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Stool</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后添加 StoolModule 类，用于创建 Stool 对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> dagger.Module;</div><div class="line"><span class="keyword">import</span> dagger.Provides;</div><div class="line"></div><div class="line"><span class="meta">@Module</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StoolModule</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Provides</span></div><div class="line">    <span class="function"><span class="keyword">static</span> Stool <span class="title">provideStool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Stool();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 build 项目之后，会在 app/build/generated/source/apt/debug/{package_name} 下生成对应的工厂类 StoolModule_ProvideStoolFactory ：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">StoolModule_ProvideStoolFactory</span> <span class="keyword">implements</span> <span class="title">Factory</span>&lt;<span class="title">Stool</span>&gt; </span>&#123;</div><div class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> StoolModule_ProvideStoolFactory INSTANCE =</div><div class="line">      <span class="keyword">new</span> StoolModule_ProvideStoolFactory();</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> Stool <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> Preconditions.checkNotNull(</div><div class="line">        StoolModule.provideStool(), <span class="string">"Cannot return null from a non-@Nullable @Provides method"</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Factory&lt;Stool&gt; <span class="title">create</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> INSTANCE;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">/** Proxies &#123;<span class="doctag">@link</span> StoolModule#provideStool()&#125;. */</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Stool <span class="title">proxyProvideStool</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> StoolModule.provideStool();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个工厂类与采用注解方式生成的 Stool_Factory 大同小异，只不过实现的 get 接口直接调用 <code>StoolModule.provideStool()</code> 创建 Stool 对象。</p>
+<h2 id="Component-完成被依赖对象到依赖者的绑定（-Module-方式-static-方法）"><a href="#Component-完成被依赖对象到依赖者的绑定（-Module-方式-static-方法）" class="headerlink" title="Component 完成被依赖对象到依赖者的绑定（@Module 方式 + static 方法）"></a>Component 完成被依赖对象到依赖者的绑定（@Module 方式 + static 方法）</h2><p>由于采用了 Module 方式创建被依赖对象，Component 接口也需要做出些修改：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span>(modules = StoolModule.class)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MainActivityComponent</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">inject</span><span class="params">(MainActivity activity)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 build 项目之后会在 app/build/generated/source/apt/debug/{package_name} 下生成接口的实现类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DaggerMainActivityComponent</span> <span class="keyword">implements</span> <span class="title">MainActivityComponent</span> </span>&#123;</div><div class="line">  <span class="keyword">private</span> MembersInjector&lt;MainActivity&gt; mainActivityMembersInjector;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="title">DaggerMainActivityComponent</span><span class="params">(Builder builder)</span> </span>&#123;</div><div class="line">    <span class="keyword">assert</span> builder != <span class="keyword">null</span>;</div><div class="line">    initialize(builder);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Builder <span class="title">builder</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MainActivityComponent <span class="title">create</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder().build();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initialize</span><span class="params">(<span class="keyword">final</span> Builder builder)</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.mainActivityMembersInjector =</div><div class="line">        MainActivity_MembersInjector.create(StoolModule_ProvideStoolFactory.create());</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inject</span><span class="params">(MainActivity activity)</span> </span>&#123;</div><div class="line">    mainActivityMembersInjector.injectMembers(activity);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Builder</span><span class="params">()</span> </span>&#123;&#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> MainActivityComponent <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> DaggerMainActivityComponent(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * <span class="doctag">@deprecated</span> This module is declared, but an instance is not used in the component. This</div><div class="line">     *     method is a no-op. For more, see https://google.github.io/dagger/unused-modules.</div><div class="line">     */</div><div class="line">    <span class="meta">@Deprecated</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">stoolModule</span><span class="params">(StoolModule stoolModule)</span> </span>&#123;</div><div class="line">      Preconditions.checkNotNull(stoolModule);</div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到，除了直接改为调用 <code>StoolModule_ProvideStoolFactory.create()</code> 创建工厂对象外，基本没有变化。另外，增加一个 <code>@Deprecated</code> 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Deprecated</span></div><div class="line"><span class="function"><span class="keyword">public</span> Builder <span class="title">stoolModule</span><span class="params">(StoolModule stoolModule)</span></span></div></pre></td></tr></table></figure>
+<p>如上篇文章所说，因为在 StoolModule 中定义的是一个静态方法，并不需要传递一个 StoolModule 对象，于是 Dagger 会自动加上 <code>@Deprecated</code> 警示。</p>
+<h2 id="Provider-提供被依赖对象（-Module-方式-非-static-方法）"><a href="#Provider-提供被依赖对象（-Module-方式-非-static-方法）" class="headerlink" title="Provider 提供被依赖对象（@Module 方式 + 非 static 方法）"></a>Provider 提供被依赖对象（@Module 方式 + 非 static 方法）</h2><p>这次，将 StoolModule 类的 provide 方法改为非静态方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Module</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StoolModule</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Provides</span></div><div class="line">    <span class="function">Stool <span class="title">provideStool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Stool();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 build 项目之后，会在 app/build/generated/source/apt/debug/{package_name} 下生成对应的工厂类 StoolModule_ProvideStoolFactory ：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">StoolModule_ProvideStoolFactory</span> <span class="keyword">implements</span> <span class="title">Factory</span>&lt;<span class="title">Stool</span>&gt; </span>&#123;</div><div class="line">  <span class="keyword">private</span> <span class="keyword">final</span> StoolModule <span class="keyword">module</span>;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">StoolModule_ProvideStoolFactory</span><span class="params">(StoolModule <span class="keyword">module</span>)</span> </span>&#123;</div><div class="line">    <span class="keyword">assert</span> <span class="keyword">module</span> != <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">this</span>.<span class="keyword">module</span> = <span class="keyword">module</span>;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> Stool <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> Preconditions.checkNotNull(</div><div class="line">        <span class="keyword">module</span>.provideStool(), <span class="string">"Cannot return null from a non-@Nullable @Provides method"</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Factory&lt;Stool&gt; <span class="title">create</span><span class="params">(StoolModule <span class="keyword">module</span>)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> StoolModule_ProvideStoolFactory(<span class="keyword">module</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">/** Proxies &#123;<span class="doctag">@link</span> StoolModule#provideStool()&#125;. */</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Stool <span class="title">proxyProvideStool</span><span class="params">(StoolModule instance)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> instance.provideStool();</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>相对于采用静态方法的 Module 生成的 StoolModule_ProvideStoolFactory，这个 Factory 对象在创建时需要传入 StoolModule 对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Factory&lt;Stool&gt; <span class="title">create</span><span class="params">(StoolModule <span class="keyword">module</span>)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> StoolModule_ProvideStoolFactory(<span class="keyword">module</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>同时，在获取 Stool 对象时，需要通过对象调用方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> Stool <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> Preconditions.checkNotNull(</div><div class="line">        <span class="keyword">module</span>.provideStool(), <span class="string">"Cannot return null from a non-@Nullable @Provides method"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>所以，Component 势必也会作出改变，以传入 Module 对象。</p>
+<h2 id="Component-完成被依赖对象到依赖者的绑定（-Module-方式-非-static-方法）"><a href="#Component-完成被依赖对象到依赖者的绑定（-Module-方式-非-static-方法）" class="headerlink" title="Component 完成被依赖对象到依赖者的绑定（@Module 方式 + 非 static 方法）"></a>Component 完成被依赖对象到依赖者的绑定（@Module 方式 + 非 static 方法）</h2><p>在 build 项目之后会在 app/build/generated/source/apt/debug/{package_name} 下生成接口的实现类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DaggerMainActivityComponent</span> <span class="keyword">implements</span> <span class="title">MainActivityComponent</span> </span>&#123;</div><div class="line">  <span class="keyword">private</span> Provider&lt;Stool&gt; provideStoolProvider;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> MembersInjector&lt;MainActivity&gt; mainActivityMembersInjector;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="title">DaggerMainActivityComponent</span><span class="params">(Builder builder)</span> </span>&#123;</div><div class="line">    <span class="keyword">assert</span> builder != <span class="keyword">null</span>;</div><div class="line">    initialize(builder);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Builder <span class="title">builder</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MainActivityComponent <span class="title">create</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Builder().build();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initialize</span><span class="params">(<span class="keyword">final</span> Builder builder)</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.provideStoolProvider = StoolModule_ProvideStoolFactory.create(builder.stoolModule);</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.mainActivityMembersInjector = MainActivity_MembersInjector.create(provideStoolProvider);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inject</span><span class="params">(MainActivity activity)</span> </span>&#123;</div><div class="line">    mainActivityMembersInjector.injectMembers(activity);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> StoolModule stoolModule;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Builder</span><span class="params">()</span> </span>&#123;&#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> MainActivityComponent <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">if</span> (stoolModule == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">this</span>.stoolModule = <span class="keyword">new</span> StoolModule();</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> DaggerMainActivityComponent(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">stoolModule</span><span class="params">(StoolModule stoolModule)</span> </span>&#123;</div><div class="line">      <span class="keyword">this</span>.stoolModule = Preconditions.checkNotNull(stoolModule);</div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>采用非静态方法的 Module，Component 的 Builder 类会接收并持有 Module 对象。在创建 Component 对象时，可以传入 Module 对象创建：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DaggerMainActivityComponent.builder().stoolModule(<span class="keyword">new</span> StoolModule()).build().inject(<span class="keyword">this</span>);</div></pre></td></tr></table></figure>
+<p>如果未传入 Module，调用 <code>Builder.build()</code> 方法时会自动创建 Module 对象。<code>create()</code> 封装了 <code>Builder.builder()</code> 也可直接调用 <code>create()</code> 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DaggerMainActivityComponent.create().inject(<span class="keyword">this</span>);</div></pre></td></tr></table></figure>
+<p>如果 Module 构造时需要传入参数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Module</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StoolModule</span> </span>&#123;</div><div class="line">  </div><div class="line">  	String name;</div><div class="line">  </div><div class="line">  	<span class="function"><span class="keyword">public</span> <span class="title">StoolModule</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">      <span class="keyword">this</span>.name = name;</div><div class="line">  	&#125;</div><div class="line"></div><div class="line">    <span class="meta">@Provides</span></div><div class="line">    <span class="function">Stool <span class="title">provideStool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Stool();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>自动生成的 DaggerMainActivityComponent 就没这么智能了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> MainActivityComponent <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="keyword">if</span> (stoolModule == <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(StoolModule.class.getCanonicalName() + <span class="string">" must be set"</span>);</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> DaggerMainActivityComponent(<span class="keyword">this</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>Builder.build()</code> 不会自动创建 Module 对象，同时也删除了 <code>create()</code> 方法。那么就必须在创建 Component 对象时手动创建 Module 对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">DaggerMainActivityComponent.builder().stoolModule(<span class="keyword">new</span> StoolModule(<span class="string">"Stool"</span>)).build().inject(<span class="keyword">this</span>);</div></pre></td></tr></table></figure>
+<p>综上，上一篇文章中描述的 Dagger 基本使用方法背后的原理就分析完了。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Dagger/" rel="tag"># Dagger</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/20/Dagger-in-use/" rel="next" title="使用 Dagger 库 基础篇">
+                <i class="fa fa-chevron-left"></i> 使用 Dagger 库 基础篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars2.githubusercontent.com/u/4797569?v=3&s=460"
+               alt="Rivendell" />
+          <p class="site-author-name" itemprop="name">Rivendell</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Provider-提供被依赖对象-Inject-方式"><span class="nav-number">1.</span> <span class="nav-text">Provider 提供被依赖对象(@Inject 方式)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Injector-提供被依赖对象的注入方式"><span class="nav-number">2.</span> <span class="nav-text">Injector 提供被依赖对象的注入方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Component-完成绑定和注入"><span class="nav-number">3.</span> <span class="nav-text">Component 完成绑定和注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Provider-提供被依赖对象（-Module-方式-static-方法）"><span class="nav-number">4.</span> <span class="nav-text">Provider 提供被依赖对象（@Module 方式 + static 方法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Component-完成被依赖对象到依赖者的绑定（-Module-方式-static-方法）"><span class="nav-number">5.</span> <span class="nav-text">Component 完成被依赖对象到依赖者的绑定（@Module 方式 + static 方法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Provider-提供被依赖对象（-Module-方式-非-static-方法）"><span class="nav-number">6.</span> <span class="nav-text">Provider 提供被依赖对象（@Module 方式 + 非 static 方法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Component-完成被依赖对象到依赖者的绑定（-Module-方式-非-static-方法）"><span class="nav-number">7.</span> <span class="nav-text">Component 完成被依赖对象到依赖者的绑定（@Module 方式 + 非 static 方法）</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rivendell</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wonder4-life';
+      var disqus_identifier = '2017/07/21/How-Dagger-works/';
+
+      var disqus_title = "Dagger 注入对象的原理";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fcMqOo1mlvdLMWP6KnOGjwCd-gzGzoHsz", "0CVDjap0JXkvbNKlDg90jejv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="//s.skimresources.com/js/30979X1032744.skimlinks.js"></script>
+
+</body>
+</html>

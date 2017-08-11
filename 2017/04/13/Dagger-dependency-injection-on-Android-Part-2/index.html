@@ -1,0 +1,882 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,Dagger," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="If you read first post about dependency injection, you will probably be looking for some real code. There are some beautiful examples about coffee makers at Dagger page, and an awesome model project b">
+<meta property="og:type" content="article">
+<meta property="og:title" content="译 Dagger: dependency injection on Android (Part 2)">
+<meta property="og:url" content="http://wonder4.me/2017/04/13/Dagger-dependency-injection-on-Android-Part-2/index.html">
+<meta property="og:site_name" content="Wonder4 Life">
+<meta property="og:description" content="If you read first post about dependency injection, you will probably be looking for some real code. There are some beautiful examples about coffee makers at Dagger page, and an awesome model project b">
+<meta property="og:updated_time" content="2017-08-11T03:25:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="译 Dagger: dependency injection on Android (Part 2)">
+<meta name="twitter:description" content="If you read first post about dependency injection, you will probably be looking for some real code. There are some beautiful examples about coffee makers at Dagger page, and an awesome model project b">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://wonder4.me/2017/04/13/Dagger-dependency-injection-on-Android-Part-2/"/>
+
+
+
+
+
+  <title> 译 Dagger: dependency injection on Android (Part 2) | Wonder4 Life </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-35276626-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Wonder4 Life</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://wonder4.me/2017/04/13/Dagger-dependency-injection-on-Android-Part-2/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Rivendell">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://avatars2.githubusercontent.com/u/4797569?v=3&s=460">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Wonder4 Life">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Wonder4 Life" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                译 Dagger: dependency injection on Android (Part 2)
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-13T15:45:27+08:00">
+                2017-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/13/Dagger-dependency-injection-on-Android-Part-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/13/Dagger-dependency-injection-on-Android-Part-2/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2017/04/13/Dagger-dependency-injection-on-Android-Part-2/" class="leancloud_visitors" data-flag-title="译 Dagger: dependency injection on Android (Part 2)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>If you read <a href="http://antonioleiva.com/dependency-injection-android-dagger-part-1/" target="_blank" rel="external">first post about dependency injection</a>, you will probably be looking for some real code. There are some beautiful examples about <a href="https://github.com/square/dagger/tree/master/examples/simple" target="_blank" rel="external">coffee makers at Dagger page</a>, and an awesome <a href="https://github.com/JakeWharton/u2020" target="_blank" rel="external">model project by Jake Wharton</a> for more experienced users. But we need something easier and coffee is not our main business model, so this article will provide an example where we are injecting some simple components to <strong>let us understand the basics</strong>.</p>
+<p><strong>Source code explained here can be found at <a href="https://github.com/antoniolg/DaggerExample" target="_blank" rel="external">DaggerExample repository at Github</a>.</strong></p>
+<p>如果你阅读了<a href="http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/">有关依赖注入的第一篇文章</a>，你可能在寻找相应的代码。这有一些漂亮的例子，如 <a href="https://github.com/square/dagger/tree/master/examples/simple" target="_blank" rel="external">Dagger 官方示例 coffee makers</a>，以及一个很棒的适合更加有经验用户的例子 <a href="https://github.com/JakeWharton/u2020" target="_blank" rel="external">model project by Jake Wharton</a>。但我们需要更简单的例子，并且 coffee 并不是我们的主营业务。因此，本文会提供一个示例，注入一些简单的组件，<strong>理解基础</strong>。</p>
+<p><strong>源码在 <a href="https://github.com/antoniolg/DaggerExample" target="_blank" rel="external">DaggerExample repository at Github</a>.</strong></p>
+<a id="more"></a>
+<h2 id="集成-Dagger-到项目中-Include-Dagger-into-your-project"><a href="#集成-Dagger-到项目中-Include-Dagger-into-your-project" class="headerlink" title="集成 Dagger 到项目中 (Include Dagger into your project)"></a>集成 Dagger 到项目中 (Include Dagger into your project)</h2><p>There are two libraries that must be added if you want to use Dagger:</p>
+<p>有两个库必须加到项目中：</p>
+<blockquote>
+<p>更新到 Dagger 2.11</p>
+</blockquote>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">dependencies</span> &#123;</div><div class="line">    <span class="keyword">compile</span> <span class="keyword">fileTree</span>(dir: <span class="string">'libs'</span>, <span class="keyword">include</span>: [<span class="string">'*.jar'</span>])</div><div class="line">    <span class="keyword">compile</span> <span class="string">'com.google.dagger:dagger:2.11'</span></div><div class="line">  	annotationProcessor <span class="string">'com.google.dagger:dagger-compiler:2.11'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>First one is <strong>Dagger library</strong>. Second library is the <strong>dagger compiler</strong>. It will create required classes in order to be able to inject dependencies. That’s the way it can avoid most reflection, by creating precompiled classes. As we only need it to compile the project, and won’t be used by application, we mark it as <em>provided</em> so that it isn’t included in final apk.</p>
+<p>第一个库是 <strong>Dagger 库</strong>。第二个库是 <strong>Dagger 编译器库</strong>，它会创建需要的类用于注入依赖。通过创建预编译的类，可以避免大部分的反射。</p>
+<blockquote>
+<p>android gradle 插件版本 2.2.0 发布以后，提供了官方的 annotationProcessor 进行注解预编译，所以这部分不翻译了。相关历史可参考 <a href="http://www.littlerobots.nl/blog/Whats-next-for-android-apt/" target="_blank" rel="external">What’s next for android-apt?</a></p>
+</blockquote>
+<h2 id="创建你的第一个模块-Creating-your-first-module"><a href="#创建你的第一个模块-Creating-your-first-module" class="headerlink" title="创建你的第一个模块 (Creating your first module)"></a>创建你的第一个模块 (Creating your first module)</h2><p>Modules will be your daily job with dagger, so you need to feel comfortable with them. <strong>Modules are classes that provide instances of the objects we will need to inject</strong>. They are defined by <strong>annotating the class with @Module</strong>. There are some extra parameters that may be configured, but I’ll explain when we use them.</p>
+<p>Create a class called <em>AppModule</em>, that will provide, for example, the Application Context. It’s usually interesting to have an easy access to it. I created App, which extends from Application, and added to the manifest.</p>
+<p>Modules 是日常使用 dagger 经常要面对的，所以你需要和它们相处融洽。<strong>Modules 是一种类，用来提供需要注入的对象实例</strong>。它们通过 <strong>添加 @Module 注解</strong>来定义。还有一些额外参数需要配置，我将在用到时解释。</p>
+<p>举个例子，创建一个 <em>AppModule</em> 类，用来提供 Application Context。方便的获取 Application Context 通常很有意义。我创建了 App 类继承于 Application，并添加到 manifest 中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Module</span>(injects = &#123; App.class &#125;)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppModule</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> App app;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AppModule</span><span class="params">(App app)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.app = app;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Provides</span> <span class="meta">@Singleton</span> <span class="function"><span class="keyword">public</span> Context <span class="title">provideApplicationContext</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> app;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>What is new here?</p>
+<p><strong>@Module</strong> : identify this class as a Dagger module.<br><strong>injects</strong> : Classes where this module is going to inject any of its dependencies. We need to specify those classes that are directly injected into object graph. This will be covered soon.<br><strong>@Provides</strong>: Identify method as an injection provider. The name of the method doesn’t matter, it only relies on what class type is provided.<br><strong>@Singleton</strong> : if it’s present, the method will return always the same instance of the object, which is far better than regular singletons. If not, everytime this type is injected, we’ll get a new instance. In this case, as we are not creating a new instance, but returning an existing one, it would be the same if we don’t annotate as singleton, but it explains better what the provider is doing. Application instance is unique.</p>
+<p>有什么新鲜的东西呢？</p>
+<p><strong>@Module</strong> : 标识当前类为 Dagger 模块。<br><del><strong>injects</strong> : 注明这个模块将要注入的依赖的类。我们需要指明那些直接注入到对象图中的类，马上就会讲到。</del> 这部分在 Dagger 2 中已经不再使用。<br><strong>@Provides</strong>: 表示该方法提供注入的对象。方法名可以随意，它由提供的类所决定。<br><strong>@Singleton</strong> : 如果出现 Singleton 注解，这个方法会始终返回相同的实例，这比常规的单例好。如果没有这个注解，每次注入这个类型，都会得到一个新的实例。在这个例子中，我们并没有创建新实例，而是返回已经存在的实例，与不增加 singleton 注解效果相同，但这样能够更好地标注这个提供者在做的事情：Application 实例是唯一的。</p>
+<blockquote>
+<h3 id="Why-regular-singletons-are-evil"><a href="#Why-regular-singletons-are-evil" class="headerlink" title="Why regular singletons are evil"></a>Why regular singletons are evil</h3><p>Singletons are probably the most dangerous dependencies a project can have. First of all, because due to the fact that we are not creating an instance, it’s really hard to know where we are using it, so these are “hidden dependencies”. On the other way, we have no way to mock them for testing or to substitute it with another module, so our code becomes hard to maintain, to test and to evolve. Injected singletons, on the other way, have the benefits of a singleton (a unique instance) and, as we can create new instances at any moment, it’s easier to mock and to substitute with another piece of code, by subclassing or making them implement a common interface.</p>
+<h3 id="为何常规单例是有害的"><a href="#为何常规单例是有害的" class="headerlink" title="为何常规单例是有害的"></a>为何常规单例是有害的</h3><p>单例可能是一个项目中最危险的依赖了。首先，由于我们没有创建实例，很难知道在什么地方使用它，所以它们是一种“隐藏依赖”。另外，我们没有办法通过 mock 模拟测试，或者用另外的模块替换它，因此代码变得难以维护，测试和进化。被注入的单例，相反，具有单例的优势（唯一的实例），同时，由于我们可以在任何时候创建新的实例，因此很容易用另一段代码 mock 或者替换它，例如采用继承子类的方式或者使其实现一个公有接口。</p>
+</blockquote>
+<p>We will be creating another module in a new package called domain. It’s quite useful to have (at least) a module in every architecture layer. This module will provide an analytics manager, that will throw an event when the app starts, only by showing a Toast. In a real project, this manager could call any analytics service such as <a href="https://www.google.com/analytics/" target="_blank" rel="external">Google Analytics</a>.</p>
+<p>我们将创建另一个 module 名字叫做 domain。在架构中每层拥有至少一个 module 很有用。这个module将提供一个统计管理器，在 app 启动时通过显示一个 Toast 来抛出一个事件。在实际的工程中，这个管理器可能调用任何统计服务，例如 <a href="https://www.google.com/analytics/" target="_blank" rel="external">Google Analytics</a>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Module</span>(</div><div class="line">	complete = <span class="keyword">false</span>,</div><div class="line">	library = <span class="keyword">true</span></div><div class="line">)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DomainModule</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Provides</span> <span class="meta">@Singleton</span> <span class="function"><span class="keyword">public</span> AnalyticsManager <span class="title">provideAnalyticsManager</span><span class="params">(Application app)</span></span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AnalyticsManager(app);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>By identifying this module as <strong>not complete</strong>, we say that some of the dependencies in this module need to be provided by another module. That’s the case of Application, which comes from AppModule. When we require this AnalyticsManager from a dependency injection, dagger will use this method, and will detect that it needs another dependency, Application, which will be requested to the object graph (almost there!). We also need to specify this module as a <strong>library</strong>, because dagger compiler will detect that AnalyticsManager is not been used by itself or its injected classes. It’s acting as a library module for AppModule.</p>
+<p>We will specify that AppModule will include this one, so back to previous class:</p>
+<p><del>通过标识这个 module 为<strong>未完成</strong></del>，表示这个 module 的一些依赖需要另外一个module来提供。即 AppModule 里面的 Application。当我们需要 AnalyticsManager 时，在依赖注入的过程中，dagger 将会使用这个方法，并会检测到它需要另外一个依赖：Application，然后会向对象图发起请求来获得。</p>
+<p><del>我们同时需要指定 module 为 <strong>library</strong></del>，因为 dagger 编译器会检测到 AnalyticsMananger 没有被它自身或者它的注入类所使用。对于 AppModule 来说，DomainModule 就是一个库模块。</p>
+<blockquote>
+<p>在 Dagger 2 的 modules 中，complete 和 library 不必指定，因为 Dagger 2 的 module 都被声明为 <code>complete = false</code> 和 <code>library = true</code>,</p>
+</blockquote>
+<p>我们将指定 AppModule 会包含 DomainModule，因此返回 AppModule 类，修改代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Module</span>(</div><div class="line">	injects = &#123;</div><div class="line">		App.class</div><div class="line">	&#125;,</div><div class="line">	includes = &#123;</div><div class="line">		DomainModule.class</div><div class="line">	&#125;</div><div class="line">)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppModule</span> </span>&#123;</div><div class="line">...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>includes</strong> attribute is there for that purpose.</p>
+<p>includes属性正是用来实现这个目的的。</p>
+<h2 id="创建对象图-Creating-the-Object-Graph"><a href="#创建对象图-Creating-the-Object-Graph" class="headerlink" title="创建对象图 (Creating the Object Graph)"></a>创建对象图 (Creating the Object Graph)</h2><p>The object graph <strong>is the place where all these dependencies live</strong>. The object graph contains the created instances and is able to inject them to the objects we add to it.</p>
+<p>In previous examples (AnalyticsManager) we have seen the “classic” dependency injection, where injections are passed via constructor. But we have <strong>some classes in Android (Application, Activity) where we don’t have control over constructor</strong>, so we simply need another way to inject its dependencies.</p>
+<p>The combination of ObjectGraph creation and this direct injection is represented in App class. The main object graph is created in the Application class and it is injected in order to get its dependencies.</p>
+<p>对象图是<strong>所有依赖对象生存的地方</strong>。对象图包含了创建的实例，并且可以注入到指定的对象中。</p>
+<p>上一个例子中( AnalyticsManager )，我们见识了“经典”的依赖注入，通过<strong>构造函数</strong>产生依赖并注入。但是<strong>有一些 Android 的类( Application，Activity )，我们没办法控制他们的构造函数</strong>，所以我们需要另一种方式来注入他们.</p>
+<p>在App类中,包含了对象图的创建和直接注入。对象图在Application类中被创建，并且为了获得它的依赖而进行注入.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> <span class="keyword">extends</span> <span class="title">Application</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> ObjectGraph objectGraph;</div><div class="line">    <span class="meta">@Inject</span> AnalyticsManager analyticsManager;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate();</div><div class="line">        objectGraph = ObjectGraph.create(getModules().toArray());</div><div class="line">        objectGraph.inject(<span class="keyword">this</span>);</div><div class="line">        analyticsManager.registerAppEnter();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> List&lt;Object&gt; <span class="title">getModules</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Arrays.&lt;Object&gt;asList(<span class="keyword">new</span> AppModule(<span class="keyword">this</span>));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>We specify dependencies by annotating them with <strong>@Inject</strong>. These fields must be public or default scoped, so that dagger can assign them. We create an array with our modules (we have only one, DomainModule is included in AppModule), and create an ObjectGraph with it. After it, we inject App instance manually. After that call, dependencies are injected, so we can call AnalyticsManager method.</p>
+<p>我们通过@Inject注解来进行注入.注意这个域(属性)必须是 public 或者是 default 的,这样 dagger 才可以给它们赋值。我们还为这些模块(虽然例子中只有一个，DomainModule 是被包含进 AppModule 的)创建了数组，通过数组创建了对象图。之后，我们立即手动的进行了注入。在调用 objectGraph.inject(this) 之后，依赖就被注入了，我们就可以调用 AnalyticsManager 的方法了。</p>
+<h2 id="结论-Conclusion"><a href="#结论-Conclusion" class="headerlink" title="结论 (Conclusion)"></a>结论 (Conclusion)</h2><p>Now you know the basics about Dagger. ObjectGraph and Modules are the most interesting components that must be mastered to use Dagger efficiently. There are some more tools such as lazy injections or provider injections that are explained <a href="http://square.github.io/dagger/" target="_blank" rel="external">at Dagger site</a>, but I don’t recommend dive into them until you are fluent using what we saw here.</p>
+<p>Don’t forget that <a href="https://github.com/antoniolg/DaggerExample" target="_blank" rel="external">source code is available at Github</a>.</p>
+<p>Next (and probably last) post about Dagger will be focused on <a href="http://antonioleiva.com/dagger-3/" target="_blank" rel="external">scoped object graphs</a>. It basically consists of creating new object graphs that lives only where its creator does. It’s common to create scoped graphs for activities.</p>
+<p>现在你知道 Dagger 的基本使用了.对象图和 Module 是 dagger 最重要的组件，我们必须使用好它们，这样才能有效率的使用 dagger。还有一些类似于懒注入( azy injections )和提供注入( provider injections ),，在 Dagger site这里有解释.但我建议当你还没有流畅的使用 dagger 之前不要去钻研这些.</p>
+<p>不要忘了在 Github上的例子源码.</p>
+<p>接下来,可能是最后一篇关于 Dagger 的文章将集中讲解指定域的对象图表.就是有生命期的对象图表,一般用于在 Activity 中使用.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="http://antonioleiva.com/dagger-android-part-2/" target="_blank" rel="external">Dagger: dependency injection on Android (Part 2)</a></p>
+<p><a href="http://stackoverflow.com/questions/37893533/android-studio-2-2-how-to-apply-dagger2-without-android-apt-plugin" target="_blank" rel="external">android studio 2.2 how to apply dagger2 without android-apt plugin</a></p>
+<p><a href="http://www.littlerobots.nl/blog/Whats-next-for-android-apt/" target="_blank" rel="external">What’s next for android-apt?</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Dagger/" rel="tag"># Dagger</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/" rel="next" title="译 Dependency injection on Android: Dagger(Part 1)">
+                <i class="fa fa-chevron-left"></i> 译 Dependency injection on Android: Dagger(Part 1)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/18/All-com-android-support-libraries-must-use-the-exact-same-version-specification/" rel="prev" title="Android support libraries 版本冲突问题">
+                Android support libraries 版本冲突问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars2.githubusercontent.com/u/4797569?v=3&s=460"
+               alt="Rivendell" />
+          <p class="site-author-name" itemprop="name">Rivendell</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#集成-Dagger-到项目中-Include-Dagger-into-your-project"><span class="nav-number">1.</span> <span class="nav-text">集成 Dagger 到项目中 (Include Dagger into your project)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建你的第一个模块-Creating-your-first-module"><span class="nav-number">2.</span> <span class="nav-text">创建你的第一个模块 (Creating your first module)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-regular-singletons-are-evil"><span class="nav-number">2.1.</span> <span class="nav-text">Why regular singletons are evil</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为何常规单例是有害的"><span class="nav-number">2.2.</span> <span class="nav-text">为何常规单例是有害的</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建对象图-Creating-the-Object-Graph"><span class="nav-number">3.</span> <span class="nav-text">创建对象图 (Creating the Object Graph)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论-Conclusion"><span class="nav-number">4.</span> <span class="nav-text">结论 (Conclusion)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rivendell</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'wonder4-life';
+      var disqus_identifier = '2017/04/13/Dagger-dependency-injection-on-Android-Part-2/';
+
+      var disqus_title = "译 Dagger: dependency injection on Android (Part 2)";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("fcMqOo1mlvdLMWP6KnOGjwCd-gzGzoHsz", "0CVDjap0JXkvbNKlDg90jejv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="//s.skimresources.com/js/30979X1032744.skimlinks.js"></script>
+
+</body>
+</html>
