@@ -1135,7 +1135,8 @@
 <p>引入的 library 如下：</p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">dependencies</span> &#123;</div><div class="line">    ...</div><div class="line">    <span class="keyword">compile</span> <span class="string">"com.android.support:appcompat-v7:25.3.1"</span></div><div class="line">    <span class="keyword">compile</span> <span class="string">'com.google.android.gms:play-services:10.2.1'</span></div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>说明 play-services 10.2.1 版本的某个子包采用了 24.0.0 版本的 appcompat-v7，产生了版本冲突。具体可以通过如下命令查询库的依赖报告：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./gradlew -q dependencies app:dependencies --configuration compile</div></pre></td></tr></table></figure>
+<p>由于gradle plugin version: 3.0 用 <code>implementation</code> 或 <code>api</code> 取代了 <code>compile</code> ，查询命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./gradlew -q dependencies app:dependencies --configuration debugAndroidTestCompileClasspath</div></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/04/18/All-com-android-support-libraries-must-use-the-exact-same-version-specification/#more" rel="contents">
