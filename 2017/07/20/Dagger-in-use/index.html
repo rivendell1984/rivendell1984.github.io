@@ -92,19 +92,19 @@ Dagger 涉及的概念很多，为了避免过早的陷入细节，这篇文章�
 下面我们就看看如何用 Dagger 造个凳子（图片来源于 Muji 官网）：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="使用 Dagger 库 基础篇">
-<meta property="og:url" content="http://wonder4.me/2017/07/20/Dagger-in-use/index.html">
+<meta property="og:url" content="http://www.wonder4.me/2017/07/20/Dagger-in-use/index.html">
 <meta property="og:site_name" content="Wonder4 Life">
 <meta property="og:description" content="Dagger 是一个依赖注入的库，采用编译时生成代码的方式实现，现在的版本是 2.11。
 Dagger 涉及的概念很多，为了避免过早的陷入细节，这篇文章先通过一个例子，介绍 Dagger 库基本的 @Inject ， @Component， @Module 几个知识点。
 下面我们就看看如何用 Dagger 造个凳子（图片来源于 Muji 官网）：">
-<meta property="og:image" content="http://wonder4.me/2017/07/20/Dagger-in-use/Stool.jpg">
+<meta property="og:image" content="http://www.wonder4.me/2017/07/20/Dagger-in-use/Stool.jpg">
 <meta property="og:updated_time" content="2017-07-25T05:10:24.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用 Dagger 库 基础篇">
 <meta name="twitter:description" content="Dagger 是一个依赖注入的库，采用编译时生成代码的方式实现，现在的版本是 2.11。
 Dagger 涉及的概念很多，为了避免过早的陷入细节，这篇文章先通过一个例子，介绍 Dagger 库基本的 @Inject ， @Component， @Module 几个知识点。
 下面我们就看看如何用 Dagger 造个凳子（图片来源于 Muji 官网）：">
-<meta name="twitter:image" content="http://wonder4.me/2017/07/20/Dagger-in-use/Stool.jpg">
+<meta name="twitter:image" content="http://www.wonder4.me/2017/07/20/Dagger-in-use/Stool.jpg">
 
 
 
@@ -132,7 +132,7 @@ Dagger 涉及的概念很多，为了避免过早的陷入细节，这篇文章�
 
 
 
-  <link rel="canonical" href="http://wonder4.me/2017/07/20/Dagger-in-use/"/>
+  <link rel="canonical" href="http://www.wonder4.me/2017/07/20/Dagger-in-use/"/>
 
 
 
@@ -266,7 +266,7 @@ Dagger 涉及的概念很多，为了避免过早的陷入细节，这篇文章�
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://wonder4.me/2017/07/20/Dagger-in-use/">
+  <link itemprop="mainEntityOfPage" href="http://www.wonder4.me/2017/07/20/Dagger-in-use/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Rivendell">
@@ -373,7 +373,7 @@ Dagger 涉及的概念很多，为了避免过早的陷入细节，这篇文章�
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Stool</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Stool</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>MainActivity 需要（依赖）这个对象，所以有一个 Stool 成员变量，并且我们在适当时机 new 一个对象：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line"></div><div class="line">    Stool mStool;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">        mStool = <span class="keyword">new</span> Stool();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这样写很符合习惯，但是造成了紧耦合。关于这部分知识，请参考<a href="http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/">这篇文章</a>。</p>
+<p>这样写很符合习惯，但是造成了紧耦合。关于这部分知识，请参考<a href="http://wonder4.me/2017/04/13/Dependency-injection-on-Android-Dagger-Part-1/" target="_blank" rel="external">这篇文章</a>。</p>
 <p>那么接下来演示下，如何用 Dagger <strong>最简单的方式</strong>创建一个对象。</p>
 <h2 id="使用-Dagger-创建被依赖对象-Inject-方式"><a href="#使用-Dagger-创建被依赖对象-Inject-方式" class="headerlink" title="使用 Dagger 创建被依赖对象 (@Inject 方式)"></a>使用 Dagger 创建被依赖对象 (@Inject 方式)</h2><p>首先，在 app 的 build.gradle 加入 Dagger 库 ：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">dependencies &#123;</div><div class="line">    ...</div><div class="line">    compile <span class="string">'com.google.dagger:dagger:2.11'</span></div><div class="line">    annotationProcessor <span class="string">'com.google.dagger:dagger-compiler:2.11'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
